@@ -1,0 +1,173 @@
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.regex.*;
+
+public class LiteratureReferenceFinder {
+
+    // Регулярное выражение для определения шаблона ссылки на литературу
+    // Покрывает как русские, так и английские источники
+    private static final Pattern REFERENCE_PATTERN = Pattern.compile(
+            "^\\d+\\.\\s" +                                            // номер с точкой и пробелом
+            "([А-ЯA-Z][а-яa-zёЁA-Z\\.-]+\\s[А-ЯA-Z]\\.([А-ЯA-Z]\\.)?,?\\s*)+" + // авторы
+            ".+?\\.\\s" +                                              // название статьи
+            ".+?\\.\\s" +                                              // название журнала
+            "\\d{4};\\d+\\(\\d+\\):\\d+(–\\d+)?\\.?$"                  // год; том(номер):страницы
+    );
+
+    // Функция, возвращающая true, если строка является ссылкой на литературу
+    public static boolean isReference(String line) {
+        line = line.trim();
+        return REFERENCE_PATTERN.matcher(line).matches();
+    }
+
+    // Главная программа для поиска и вывода ссылок из файла
+    public static void main(String[] args) throws IOException {
+        String fileName = "literature_sample.txt"; // замените на ваш файл
+
+        try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(new FileInputStream(fileName), StandardCharsets.UTF_8))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                if (isReference(line)) {
+                    System.out.println(line);
+                }
+            }
+        }
+    }
+}
+
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+import java.util.regex.*;
+
+public class AuthorExtractor implements Serializable {
+    // Класс Автор
+    public static class Author implements Serializable {
+        private String surname;
+        private String initials;
+
+        public Author(String surname, String initials) {
+            this.surname = surname;
+            this.initials = initials;
+        }
+
+        public String getSurname() { return surname; }
+        public String getInitials() { return initials; }
+
+        public boolean isForeign() {
+            // Зарубежный автор - фамилия на латинице (начинается с большой латинской буквы)
+            return surname.matches("[A-Z][a-zA-Z\\-]+");
+        }
+
+        @Override
+        public String toString() {
+            return surname + " " + initials;
+        }
+    }
+
+    // Регулярное выражение для поиска авторов вида Иванов А.А. или Ivanov A.J., Hou S.
+    private static final Pattern AUTHOR_PATTERN =
+            Pattern.compile("([А-ЯA-Z][а-яa-zA-Z\\-]+)\\s([A-ZА-Я]\\.(?:[A-ZА-Я]\\.)?)");
+
+    // Парсинг авторов из строки
+    public static List<Author> extractAuthors(String line) {
+        List<Author> authors = new ArrayList<>();
+        Matcher m = AUTHOR_PATTERN.matcher(line);
+        while (m.find()) {
+            authors.add(new Author(m.group(1), m.group(2)));
+        }
+        return authors;
+    }
+
+    // Сохранение списка авторов в файл через сериализацию
+    public static void serializeAuthors(List<Author> authors, String fileName) throws IOException {
+        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(fileName))) {
+            out.writeObject(authors);
+        }
+    }
+
+    // Загрузка списка авторов из файла
+    @SuppressWarnings("unchecked")
+    public static List<Author> deserializeAuthors(String fileName) throws IOException, ClassNotFoundException {
+        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(fileName))) {
+            return (List<Author>) in.readObject();
+        }
+    }
+
+    // Основная функция для извлечения авторов и сериализации
+    public static void main(String[] args) throws IOException {
+        String fileName = "literature_sample.txt"; // исходный текстовый файл
+        String outFile = "authors.ser"; // файл для сериализации
+
+        Set<String> unique = new HashSet<>(); // защита от дублей
+        List<Author> allAuthors = new ArrayList<>();
+
+        // Читаем файл, ищем авторов
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(new FileInputStream(fileName), StandardCharsets.UTF_8))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                List<Author> authors = extractAuthors(line);
+                for (Author a : authors) {
+                    String key = a.getSurname() + " " + a.getInitials();
+                    if (!unique.contains(key)) {
+                        allAuthors.add(a);
+                        unique.add(key);
+                    }
+                }
+            }
+        }
+        // Сохраняем авторов в сериализованный файл
+        serializeAuthors(allAuthors, outFile);
+
+        System.out.println("Сохранено авторов: " + allAuthors.size());
+    }
+}
+
+import java.io.*;
+import java.util.*;
+
+public class ForeignAuthorsPrinter {
+    public static class Author implements Serializable {
+        private String surname;
+        private String initials;
+
+        public Author(String surname, String initials) {
+            this.surname = surname;
+            this.initials = initials;
+        }
+
+        public String getSurname() { return surname; }
+        public String getInitials() { return initials; }
+
+        public boolean isForeign() {
+            return surname.matches("[A-Z][a-zA-Z\\-]+");
+        }
+
+        @Override
+        public String toString() {
+            return surname + " " + initials;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+
+    public static List<Author> deserializeAuthors(String fileName) throws IOException, ClassNotFoundException {
+        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(fileName))) {
+            return (List<Author>) in.readObject();
+        }
+    }
+
+    public static void main(String[] args) throws IOException, ClassNotFoundException {
+        String fileName = "authors.ser";
+        List<Author> authors = deserializeAuthors(fileName);
+
+        System.out.println("Зарубежные авторы:");
+        for (Author author : authors) {
+            if (author.isForeign()) {
+                System.out.println(author);
+            }
+        }
+    }
+}

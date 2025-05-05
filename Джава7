@@ -1,0 +1,172 @@
+public class GenericStack<E> {
+    private static final int INITIAL_CAPACITY = 10;
+    private E[] arr;
+    private int size;
+    
+    @SuppressWarnings("unchecked")
+    public GenericStack() {
+        arr = (E[]) new Object[INITIAL_CAPACITY];
+        size = 0;
+    }
+    
+    public int getSize() {
+        return size;
+    }
+    
+    public E peek() {
+        if (size == 0) {
+            throw new java.util.EmptyStackException();
+        }
+        return arr[size - 1];
+    }
+    
+    public void push(E o) {
+        if (size == arr.length) {
+            resizeArray();
+        }
+        arr[size++] = o;
+    }
+    
+    @SuppressWarnings("unchecked")
+    private void resizeArray() {
+        E[] newArr = (E[]) new Object[arr.length * 2];
+        System.arraycopy(arr, 0, newArr, 0, arr.length);
+        arr = newArr;
+    }
+    
+    public E pop() {
+        if (size == 0) {
+            throw new java.util.EmptyStackException();
+        }
+        E o = arr[--size];
+        arr[size] = null; // Удаляем элемент для предотвращения утечки памяти
+        return o;
+    }
+    
+    public boolean isEmpty() {
+        return size == 0;
+    }
+    
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("стек: [");
+        for (int i = 0; i < size; i++) {
+            sb.append(arr[i]);
+            if (i < size - 1) {
+                sb.append(", ");
+            }
+        }
+        sb.append("]");
+        return sb.toString();
+    }
+    
+    public static void main(String[] args) {
+        GenericStack<Integer> stack = new GenericStack<>();
+        stack.push(1);
+        stack.push(2);
+        stack.push(3);
+        System.out.println(stack); // стек: [1, 2, 3]
+        System.out.println(stack.pop()); // 3
+        System.out.println(stack); // стек: [1, 2]
+    }
+}
+
+import java.util.ArrayList;
+
+public class GenericStack<E> {
+    private static final int INITIAL_CAPACITY = 10;
+    private E[] arr;
+    private int size;
+    
+    @SuppressWarnings("unchecked")
+    public GenericStack() {
+        arr = (E[]) new Object[INITIAL_CAPACITY];
+        size = 0;
+    }
+    
+    public int getSize() {
+        return size;
+    }
+    
+    public E peek() {
+        if (size == 0) {
+            throw new java.util.EmptyStackException();
+        }
+        return arr[size - 1];
+    }
+    
+    public void push(E o) {
+        if (size == arr.length) {
+            resizeArray();
+        }
+        arr[size++] = o;
+    }
+    
+    @SuppressWarnings("unchecked")
+    private void resizeArray() {
+        E[] newArr = (E[]) new Object[arr.length * 2];
+        System.arraycopy(arr, 0, newArr, 0, arr.length);
+        arr = newArr;
+    }
+    
+    public E pop() {
+        if (size == 0) {
+            throw new java.util.EmptyStackException();
+        }
+        E o = arr[--size];
+        arr[size] = null; // Удаляем элемент для предотвращения утечки памяти
+        return o;
+    }
+    
+    public boolean isEmpty() {
+        return size == 0;
+    }
+    
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("стек: [");
+        for (int i = 0; i < size; i++) {
+            sb.append(arr[i]);
+            if (i < size - 1) {
+                sb.append(", ");
+            }
+        }
+        sb.append("]");
+        return sb.toString();
+    }
+
+    // Метод для добавления коллекции в стек без дубликатов
+    public void pushAllIfNotDuplicate(ArrayList<E> collection) {
+        for (E item : collection) {
+            // Проверяем, есть ли элемент уже в стеке
+            if (!contains(item)) {
+                push(item);
+            }
+        }
+    }
+
+    // Метод для проверки, содержится ли элемент в стеке
+    private boolean contains(E item) {
+        for (int i = 0; i < size; i++) {
+            if (arr[i].equals(item)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public static void main(String[] args) {
+        GenericStack<Integer> stack = new GenericStack<>();
+        stack.push(1);
+        stack.push(2);
+        System.out.println("До добавления коллекции: " + stack); // стек: [1, 2]
+        
+        ArrayList<Integer> list = new ArrayList<>();
+        list.add(2);
+        list.add(3);
+        list.add(4);
+        
+        stack.pushAllIfNotDuplicate(list);
+        System.out.println("После добавления коллекции: " + stack); // стек: [1, 2, 3, 4]
+    }
+}

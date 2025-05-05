@@ -1,0 +1,118 @@
+public class SynchronizedThreadExample {
+    public static void main(String[] args) {
+        // Создаем массив строк, которые будут использоваться потоками
+        String[] texts = {
+                "Когда-то Пушкин написал: \"Я памятник себе воздвиг нерукотворный...\"",
+                "Лев Толстой писал: \"Все счастливые семьи похожи друг на друга...\"",
+                "Чехов отметил: \"Человек — это то, во что он верит.\"",
+                "Маяковский написал: \"И, если звезды зажигают, значит это кому-нибудь нужно.\"",
+                "Гоголь в \"Ревизоре\": \"Нечего на зеркало пенять, коли рожа крива.\"",
+                "Достоевский в \"Преступлении и наказании\": \"Красота спасет мир.\"",
+                "Тургенев в \"Отцах и детях\": \"Мы ломаем друг в друге с лёгкостью то, что сами создать не можем.\"",
+                "Булгаков в \"Мастере и Маргарите\": \"Рукописи не горят.\"",
+                "Есенин написал: \"Если крикнет рать святая: кинь ты Русь, живи в раю! Я скажу: не надо рая, дайте родину мою.\""
+        };
+
+        // Создаем и запускаем потоки
+        for (int i = 0; i < texts.length; i++) {
+            Thread thread = new Thread(new TextPrinter(texts[i]));
+            thread.start();
+        }
+    }
+}
+
+// Класс, реализующий логику синхронизированного вывода текста потока
+class TextPrinter implements Runnable {
+    private String text; // Поле для хранения текста
+
+    // Конструктор класса, инициализируем текст
+    public TextPrinter(String text) {
+        this.text = text;
+    }
+
+    @Override
+    public void run() {
+        printText();
+    }
+
+    // Синхронизированный метод для вывода текста
+    private synchronized void printText() {
+        System.out.println("ID потока: " + Thread.currentThread().getId());
+        System.out.println(text);
+        System.out.println(); // Пустая строка для разделения вывода в консоли
+    }
+}
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Scanner;
+
+public class Main {
+    private static final ArrayList<String> stringList = new ArrayList<>();
+
+    public static void main(String[] args) {
+        // Запуск потока для сортировки строк каждые 5 секунд
+        Thread sorterThread = new Thread(new ListSorter());
+        sorterThread.start();
+
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Введите строки для добавления в список (пустая строка для завершения):");
+
+        while (true) {
+            String input = scanner.nextLine();
+            if (input.isEmpty()) {
+                synchronized (stringList) {
+                    System.out.println("Текущее состояние списка:");
+                    for (String str : stringList) {
+                        System.out.println(str);
+                    }
+                }
+                break;
+            }
+
+            // Разделение длинных строк на подстроки длиной не более 80 символов
+            synchronized (stringList) {
+                while (input.length() > 80) {
+                    stringList.add(input.substring(0, 80));
+                    input = input.substring(80);
+                }
+                stringList.add(input);
+            }
+        }
+
+        // Завершение программы
+        sorterThread.interrupt();  // Остановка потока сортировки
+        try {
+            sorterThread.join();  // Дожидаемся завершения потока
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        System.out.println("Программа завершена.");
+    }
+
+    // Вложенный класс для сортировки списка
+    static class ListSorter implements Runnable {
+        @Override
+        public void run() {
+            try {
+                while (!Thread.currentThread().isInterrupted()) {
+                    Thread.sleep(5000);  // Ожидание 5 секунд
+
+                    synchronized (stringList) {
+                        if (!stringList.isEmpty()) {
+                            Collections.sort(stringList);  // Сортировка списка в лексикографическом порядке
+                            System.out.println("Список отсортирован:");
+                            for (String str : stringList) {
+                                System.out.println(str);
+                            }
+                        }
+                    }
+                }
+            } catch (InterruptedException e) {
+                // Поток завершен
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+}
+

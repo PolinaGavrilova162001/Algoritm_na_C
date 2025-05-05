@@ -1,0 +1,85 @@
+public class StopWatch {
+    // Скрытые поля данных
+    private long startTime;
+    private long endTime;
+
+    // Безаргументный конструктор (инициализация startTime текущим временем)
+    public StopWatch() {
+        this.startTime = System.currentTimeMillis();
+    }
+
+    // Метод, сбрасывающий startTime до текущего времени
+    public void start() {
+        this.startTime = System.currentTimeMillis();
+    }
+
+    // Метод, присваивающий endTime текущее время
+    public void stop() {
+        this.endTime = System.currentTimeMillis();
+    }
+
+    // Getter для startTime
+    public long getStartTime() {
+        return startTime;
+    }
+
+    // Getter для endTime
+    public long getEndTime() {
+        return endTime;
+    }
+
+    // Метод, возвращающий прошедшее время на секундомере
+    public long getElapsedTime() {
+        return endTime - startTime;
+    }
+}
+
+import java.util.Random;
+
+public class TotalArea {
+    public static void main(String[] args) {
+        // Создание экземпляра StopWatch
+        StopWatch stopWatch = new StopWatch();
+
+        // Создание массива с 100 000 случайных чисел
+        int size = 100000;
+        int[] numbers = new int[size];
+        Random random = new Random();
+
+        for (int i = 0; i < size; i++) {
+            numbers[i] = random.nextInt(size);
+        }
+
+        // Начало отсчета времени
+        stopWatch.start();
+
+        // Сортировка массива методом пузырька
+        bubbleSort(numbers);
+
+        // Остановка отсчета времени
+        stopWatch.stop();
+
+        // Вывод времени сортировки
+        System.out.println("Время выполнения сортировки: " + stopWatch.getElapsedTime() + " миллисекунд");
+    }
+
+    // Метод сортировки пузырьком
+    public static void bubbleSort(int[] arr) {
+        int n = arr.length;
+        boolean swapped;
+        for (int i = 0; i < n - 1; i++) {
+            swapped = false;
+            for (int j = 0; j < n - 1 - i; j++) {
+                if (arr[j] > arr[j + 1]) {
+                    // Меняем местами arr[j] и arr[j+1]
+                    int temp = arr[j];
+                    arr[j] = arr[j + 1];
+                    arr[j + 1] = temp;
+                    swapped = true;
+                }
+            }
+            // Если ни один элемент не был обменен, массив уже отсортирован
+            if (!swapped) break;
+        }
+    }
+}

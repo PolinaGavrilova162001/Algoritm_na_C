@@ -1,0 +1,65 @@
+public class MyTime {
+    // Поля данных
+    private int hour;
+    private int minute;
+    private int second;
+
+    // Безаргументный конструктор (текущее время)
+    public MyTime() {
+        long currentTimeMillis = System.currentTimeMillis();
+        setTime(currentTimeMillis);
+    }
+
+    // Конструктор с миллисекундами
+    public MyTime(long elapseTime) {
+        setTime(elapseTime);
+    }
+
+public class Circle {
+    // Поле данных инициализации
+    private double radius;
+
+    // Конструктор: инициализация с указанным радиусом
+    public Circle(double radius) {
+        this.radius = radius;
+    }
+
+    // Метод для получения радиуса
+    public double getRadius() {
+        return radius;
+    }
+
+    // Метод для установки радиуса
+    public void setRadius(double radius) {
+        this.radius = radius;
+    }
+
+    // Метод для расчета площади
+    public double getArea() {
+        return Math.PI * radius * radius;
+    }
+}
+
+public class TotalArea {
+    public static void main(String[] args) {
+        // Демонстрация работы MyTime
+        MyTime time1 = new MyTime(); // Текущее время
+        MyTime time2 = new MyTime(555550000); // Время из миллисекунд
+        MyTime time3 = new MyTime(5, 23, 55); // Указанное время
+
+        System.out.println("Time 1 (текущее время): " + time1.toTimeString());
+        System.out.println("Time 2 (555550000 миллисекунд): " + time2.toTimeString());
+        System.out.println("Time 3 (5:23:55): " + time3.toTimeString());
+
+        // Демонстрация работы Circle
+        Circle circle1 = new Circle(5);
+        Circle circle2 = new Circle(10);
+
+        System.out.println("Circle 1: Радиус = " + circle1.getRadius() + ", Площадь = " + circle1.getArea());
+        System.out.println("Circle 2: Радиус = " + circle2.getRadius() + ", Площадь = " + circle2.getArea());
+
+        double totalArea = circle1.getArea() + circle2.getArea();
+        System.out.println("Общая площадь обоих кругов: " + totalArea);
+    }
+}
+

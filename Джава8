@@ -1,0 +1,213 @@
+// Класс исключения при переполнении контейнера
+class ContainerOverflowException extends Exception {
+    public ContainerOverflowException(String message) {
+        super(message);
+    }
+}
+
+// Класс исключения при попытке удалить из пустого контейнера
+class ContainerUnderflowException extends Exception {
+    public ContainerUnderflowException(String message) {
+        super(message);
+    }
+}
+
+// Класс исключения при невозможности сортировки
+class SortException extends Exception {
+    public SortException(String message) {
+        super(message);
+    }
+}
+
+// Класс-контейнер для хранения целых чисел
+public class IntegerContainer {
+    private int[] array;
+    private int top;
+    private final int maxSize;
+
+    public IntegerContainer(int size) {
+        this.maxSize = size;
+        this.array = new int[maxSize];
+        this.top = -1;
+    }
+
+    // Метод добавления элемента в контейнер
+    public void push(int value) throws ContainerOverflowException {
+        if (top >= maxSize - 1) {
+            throw new ContainerOverflowException("Контейнер переполнен.");
+        }
+        array[++top] = value;
+    }
+
+    // Метод удаления элемента из контейнера
+    public int pop() throws ContainerUnderflowException {
+        if (top < 0) {
+            throw new ContainerUnderflowException("Контейнер пуст.");
+        }
+        return array[top--];
+    }
+
+    // Метод сортировки элементов контейнера
+    public void sort() throws SortException {
+        if (top < 0) {
+            throw new SortException("Контейнер пуст, сортировка невозможна.");
+        }
+
+        boolean allEqual = true;
+        for (int i = 0; i < top; i++) {
+            if (array[i] != array[i + 1]) {
+                allEqual = false;
+                break;
+            }
+        }
+
+        if (allEqual) {
+            throw new SortException("Все элементы контейнера одинаковы, сортировка невозможна.");
+        }
+
+        // Простая сортировка пузырьком для примера
+        for (int i = 0; i <= top; i++) {
+            for (int j = 0; j < top - i; j++) {
+                if (array[j] > array[j + 1]) {
+                    int temp = array[j];
+                    array[j] = array[j + 1];
+                    array[j + 1] = temp;
+                }
+            }
+        }
+    }
+
+    // Метод для отображения содержимого контейнера
+    public void display() {
+        System.out.print("Контейнер: ");
+        for (int i = 0; i <= top; i++) {
+            System.out.print(array[i] + " ");
+        }
+        System.out.println();
+    }
+
+    public static void main(String[] args) {
+        try {
+            IntegerContainer container = new IntegerContainer(10);
+            container.push(5);
+            container.push(3);
+            container.push(8);
+            container.display();
+            container.sort();
+            container.display();
+            container.pop();
+            container.pop();
+            container.pop();
+            container.sort(); // Здесь будет вызвано исключение, так как контейнер пуст
+        } catch (ContainerOverflowException | ContainerUnderflowException | SortException e) {
+            System.err.println(e.getMessage());
+        }
+    }
+}
+
+// Исключение при переполнении контейнера
+class ContainerOverflowException extends Exception {
+    public ContainerOverflowException(String message) {
+        super(message);
+    }
+}
+
+// Исключение при попытке удалить из пустого контейнера
+class ContainerUnderflowException extends Exception {
+    public ContainerUnderflowException(String message) {
+        super(message);
+    }
+}
+
+// Исключение при некорректном поиске
+class MultipleElementsFoundException extends Exception {
+    public MultipleElementsFoundException(String message) {
+        super(message);
+    }
+}
+
+// Класс-контейнер для хранения целых чисел
+public class IntegerContainer {
+    private int[] array;
+    private int top;
+    private final int maxSize;
+
+    public IntegerContainer(int size) {
+        this.maxSize = size;
+        this.array = new int[maxSize];
+        this.top = -1; // Индекс последнего добавленного элемента
+    }
+
+    // Метод добавления элемента в контейнер
+    public void push(int value) throws ContainerOverflowException {
+        if (top >= maxSize - 1) {
+            throw new ContainerOverflowException("Контейнер переполнен.");
+        }
+        array[++top] = value;
+    }
+
+    // Метод удаления элемента из контейнера
+    public int pop() throws ContainerUnderflowException {
+        if (top < 0) {
+            throw new ContainerUnderflowException("Контейнер пуст.");
+        }
+        return array[top--];
+    }
+
+    // Метод поиска элемента по значению
+    public int find(int value) throws MultipleElementsFoundException {
+        if (top < 0) {
+            throw new IllegalArgumentException("Контейнер пуст. Нечего искать.");
+        }
+
+        int foundIndex = -1; // Индекс найденного элемента
+        int count = 0; // Счетчик количества совпадений
+
+        for (int i = 0; i <= top; i++) {
+            if (array[i] == value) {
+                count++;
+                if (foundIndex == -1) {
+                    foundIndex = i;
+                }
+            }
+        }
+
+        if (count > 1) {
+            throw new MultipleElementsFoundException("В контейнере содержится более одного искомого элемента.");
+        } else if (count == 0) {
+            throw new IllegalArgumentException("Элемент не найден в контейнере.");
+        }
+
+        return foundIndex; // Возвращает индекс найденного элемента
+    }
+
+    // Метод для отображения содержимого контейнера
+    public void display() {
+        System.out.print("Контейнер: ");
+        for (int i = 0; i <= top; i++) {
+            System.out.print(array[i] + " ");
+        }
+        System.out.println();
+    }
+
+    public static void main(String[] args) {
+        try {
+            IntegerContainer container = new IntegerContainer(10);
+            container.push(5);
+            container.push(3);
+            container.push(7);
+            container.push(5);
+            container.display();
+
+            // Поиск элемента
+            int index = container.find(3);
+            System.out.println("Элемент найден по индексу: " + index);
+
+            // Провоцируем исключение с дублирующимися элементами
+            container.find(5); // Здесь будет исключение MultipleElementsFoundException
+
+        } catch (ContainerOverflowException | ContainerUnderflowException | MultipleElementsFoundException | IllegalArgumentException e) {
+            System.err.println(e.getMessage());
+        }
+    }
+}

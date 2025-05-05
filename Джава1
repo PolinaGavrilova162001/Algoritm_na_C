@@ -1,0 +1,60 @@
+// Rectangle.java
+public class Rectangle {
+    // Поля данных
+    private double width;
+    private double height;
+
+    // Безаргументный конструктор
+    public Rectangle() {
+        this.width = -1;  // Значение по умолчанию
+        this.height = -1; // Значение по умолчанию
+    }
+
+    // Конструктор с параметрами
+    public Rectangle(double width, double height) {
+        this.width = width;
+        this.height = height;
+    }
+
+    // Метод для вычисления площади
+    public double getArea() {
+        return width * height;
+    }
+
+    // Метод для вычисления периметра
+    public double getPerimeter() {
+        return 2 * (width + height);
+    }
+
+    // Методы доступа к ширине и высоте
+    public double getWidth() {
+        return width;
+    }
+
+    public double getHeight() {
+        return height;
+    }
+}
+
+// TotalArea.java
+public class TotalArea {
+    public static void main(String[] args) {
+        // Создание объектов типа Rectangle
+        Rectangle rectangle1 = new Rectangle(4, 40);
+        Rectangle rectangle2 = new Rectangle(3.5, 35.9);
+
+        // Вывод информации о первом прямоугольнике
+        System.out.println("Прямоугольник 1:");
+        System.out.println("Ширина: " + rectangle1.getWidth());
+        System.out.println("Высота: " + rectangle1.getHeight());
+        System.out.println("Площадь: " + rectangle1.getArea());
+        System.out.println("Периметр: " + rectangle1.getPerimeter());
+
+        // Вывод информации о втором прямоугольнике
+        System.out.println("\nПрямоугольник 2:");
+        System.out.println("Ширина: " + rectangle2.getWidth());
+        System.out.println("Высота: " + rectangle2.getHeight());
+        System.out.println("Площадь: " + rectangle2.getArea());
+        System.out.println("Периметр: " + rectangle2.getPerimeter());
+    }
+}

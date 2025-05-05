@@ -1,0 +1,88 @@
+/*
+Online Java - IDE, Code Editor, Compiler
+
+Online Java is a quick and easy tool that helps you to build, compile, test your programs online.
+*/
+
+public class Main
+{
+    public static void main(String[] args) {
+        System.out.println("Welcome to Online IDE!! Happy Coding :)");
+    }
+}
+
+import java.util.ArrayList;
+
+// Класс MyStack, реализующий интерфейс Cloneable
+class MyStack implements Cloneable {
+    private ArrayList<Object> list = new ArrayList<>();
+
+    public boolean isEmpty() {
+        return list.isEmpty();
+    }
+
+    public int getSize() {
+        return list.size();
+    }
+
+    public Object peek() {
+        return list.get(getSize() - 1);
+    }
+
+    public Object pop() {
+        Object o = list.get(getSize() - 1);
+        list.remove(getSize() - 1);
+        return o;
+    }
+
+    public void push(Object o) {
+        list.add(o);
+    }
+
+    @Override
+    public String toString() {
+        return "стек: " + list.toString();
+    }
+
+    // Метод для клонирования стека
+    @Override
+    public Object clone() {
+        try {
+            MyStack cloned = (MyStack) super.clone();
+            cloned.list = (ArrayList<Object>) this.list.clone();
+            return cloned;
+        } catch (CloneNotSupportedException ex) {
+            return null;
+        }
+    }
+}
+
+// Класс для тестирования MyStack и его клонирования
+public class TestMyStack {
+    public static void main(String[] args) {
+        // Создание и заполнение первоначального стека
+        MyStack originalStack = new MyStack();
+        originalStack.push("Apple");
+        originalStack.push("Banana");
+        originalStack.push("Cherry");
+
+        // Клонирование стека
+        MyStack clonedStack = (MyStack) originalStack.clone();
+
+        // Демонстрация, что оба стека независимы
+        System.out.println("Оригинальный стек перед изменениями: " + originalStack);
+        System.out.println("Клонированный стек перед изменениями: " + clonedStack);
+
+        // Изменим оригинальный стек
+        originalStack.pop();
+        originalStack.push("Orange");
+
+        // Показать содержимое после изменений
+        System.out.println("Оригинальный стек после изменений: " + originalStack);
+        System.out.println("Клонированный стек после изменений: " + clonedStack);
+
+        // Проверка независимости изменений
+        System.out.println("Размер оригинального стека: " + originalStack.getSize());
+        System.out.println("Размер клонированного стека: " + clonedStack.getSize());
+    }
+}

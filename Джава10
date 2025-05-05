@@ -1,0 +1,170 @@
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+
+class Product { }
+
+class DetailProducer implements Runnable {
+    private final BlockingQueue<String> queue;
+    private final String detailType;
+    private final long productionTime;
+
+    public DetailProducer(BlockingQueue<String> queue, String detailType, long productionTime) {
+        this.queue = queue;
+        this.detailType = detailType;
+        this.productionTime = productionTime;
+    }
+
+    @Override
+    public void run() {
+        try {
+            while (true) {
+                Thread.sleep(productionTime);
+                queue.put(detailType);
+                System.out.println("Произведена деталь: " + detailType + ". В очереди " + detailType + ": " + queue.size());
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+}
+
+class Assembly {
+    private final BlockingQueue<String> aQueue;
+    private final BlockingQueue<String> bQueue;
+
+    public Assembly(BlockingQueue<String> aQueue, BlockingQueue<String> bQueue) {
+        this.aQueue = aQueue;
+        this.bQueue = bQueue;
+    }
+
+    public void assembleProduct() throws InterruptedException {
+        while (true) {
+            aQueue.take();
+            bQueue.take();
+            Thread.sleep(2000);
+            System.out.println("Произведен продукт. В очереди A: " + aQueue.size() + ", В очереди B: " + bQueue.size());
+        }
+    }
+}
+
+public class ProductionSimulation {
+    public static void main(String[] args) {
+        BlockingQueue<String> aQueue = new ArrayBlockingQueue<>(5);
+        BlockingQueue<String> bQueue = new ArrayBlockingQueue<>(5);
+        BlockingQueue<String> cQueue = new ArrayBlockingQueue<>(5);
+        BlockingQueue<String> dQueue = new ArrayBlockingQueue<>(5);
+
+        Thread aProducer = new Thread(new DetailProducer(aQueue, "A", 1000));
+        Thread cProducer = new Thread(new DetailProducer(cQueue, "C", 2000));
+        Thread dProducer = new Thread(new DetailProducer(dQueue, "D", 1000));
+
+        Thread bProducer = new Thread(() -> {
+            try {
+                while (true) {
+                    cQueue.take();
+                    dQueue.take();
+                    Thread.sleep(3000);
+                    bQueue.put("B");
+                    System.out.println("Произведена деталь B. В очереди B: " + bQueue.size());
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        });
+
+        Assembly assembly = new Assembly(aQueue, bQueue);
+        Thread assemblyLine = new Thread(() -> {
+            try {
+                assembly.assembleProduct();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        });
+
+        aProducer.start();
+        cProducer.start();
+        dProducer.start();
+        bProducer.start();
+        assemblyLine.start();
+    }
+}
+
+import java.util.Random;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+
+class Patient {
+    private final String name;
+    private final int serviceTime; // Время обслуживания в миллисекундах
+
+    public Patient(String name, int serviceTime) {
+        this.name = name;
+        this.serviceTime = serviceTime;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getServiceTime() {
+        return serviceTime;
+    }
+}
+
+class Nurse implements Runnable {
+    private final BlockingQueue<Patient> queue;
+    private final String nurseName;
+
+    public Nurse(BlockingQueue<Patient> queue, String nurseName) {
+        this.queue = queue;
+        this.nurseName = nurseName;
+    }
+
+    @Override
+    public void run() {
+        try {
+            while (true) {
+                Patient patient = queue.take(); // Извлечение пациента из очереди
+                System.out.println("Пациент " + patient.getName() + " обслуживается медсестрой " + nurseName 
+                                   + " в течение " + patient.getServiceTime() + " мс.");
+                Thread.sleep(patient.getServiceTime()); // Обслуживание
+                System.out.println("Пациент " + patient.getName() + " обслужен медсестрой " + nurseName + ".");
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+}
+
+public class MedicalRoomSimulation {
+    public static void main(String[] args) {
+        final int NUMBER_OF_PATIENTS = 10;
+        final int NUMBER_OF_NURSES = 3;
+        final int MAX_SERVICE_TIME = 5000; // Максимальное время обслуживания (в миллисекундах)
+
+        BlockingQueue<Patient> queue = new LinkedBlockingQueue<>();
+        Random random = new Random();
+
+        // Создание и добавление пациентов в очередь с произвольным временем обслуживания
+        for (int i = 1; i <= NUMBER_OF_PATIENTS; i++) {
+            int serviceTime = random.nextInt(MAX_SERVICE_TIME) + 1000; // Время в диапазоне от 1000 до MAX_SERVICE_TIME
+            queue.add(new Patient("Пациент " + i, serviceTime));
+        }
+
+        // Создание медсестёр и запуск их потоков
+        for (int i = 1; i <= NUMBER_OF_NURSES; i++) {
+            new Thread(new Nurse(queue, "Медсестра " + i)).start();
+        }
+
+        // Ожидание окончания обслуживания всех пациентов
+        try {
+            while (!queue.isEmpty()) {
+                Thread.sleep(1000);
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        System.out.println("Все пациенты обслужены.");
+    }
+}

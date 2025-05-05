@@ -1,0 +1,142 @@
+// Приложение 1 — Отправитель (Client)
+
+import java.io.*;
+import java.net.*;
+
+public class EnglishLetterSender {
+    public static void main(String[] args) {
+        String inputFile = "input.txt"; // путь к вашему файлу
+        String host = "localhost";
+        int port = 5555;
+
+        try (
+                Socket socket = new Socket(host, port);
+                BufferedReader fileReader = new BufferedReader(new FileReader(inputFile));
+                OutputStream out = socket.getOutputStream();
+        ) {
+            int ch;
+            while ((ch = fileReader.read()) != -1) {
+                char c = (char) ch;
+                if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')) {
+                    out.write(c);
+                }
+            }
+            out.flush();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+// Приложение 2 — Приёмник (Server)
+
+import java.io.*;
+import java.net.*;
+
+public class EnglishLetterReceiver {
+    public static void main(String[] args) {
+        int port = 5555;
+
+        try (
+                ServerSocket serverSocket = new ServerSocket(port);
+                Socket clientSocket = serverSocket.accept();
+                InputStream in = clientSocket.getInputStream();
+        ) {
+            int ch;
+            while ((ch = in.read()) != -1) {
+                System.out.print((char) ch);
+            }
+            System.out.println(); // перевод строки после вывода
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+// Server.java
+
+import java.io.*;
+import java.net.*;
+
+public class Server {
+    public static void main(String[] args) {
+        int port = 5555;
+        System.out.println("Сервер запущен. Ожидание клиента...");
+        try (
+            ServerSocket serverSocket = new ServerSocket(port);
+            Socket socket = serverSocket.accept();
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            BufferedReader console = new BufferedReader(new InputStreamReader(System.in))
+        ) {
+            System.out.println("Клиент подключен!");
+            
+            // Поток чтения сообщений от клиента
+            Thread readThread = new Thread(() -> {
+                String msg;
+                try {
+                    while ((msg = in.readLine()) != null) {
+                        System.out.println("Клиент: " + msg);
+                    }
+                } catch (IOException e) {
+                    System.out.println("Соединение закрыто клиентом.");
+                }
+            });
+            readThread.start();
+
+            // Поток отправки сообщений клиенту
+            String msgToClient;
+            while ((msgToClient = console.readLine()) != null) {
+                out.write(msgToClient);
+                out.newLine();
+                out.flush();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+// Client.java
+
+import java.io.*;
+import java.net.*;
+
+public class Client {
+    public static void main(String[] args) {
+        String host = "localhost";
+        int port = 5555;
+        System.out.println("Попытка подключиться к серверу...");
+        try (
+            Socket socket = new Socket(host, port);
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            BufferedReader console = new BufferedReader(new InputStreamReader(System.in))
+        ) {
+            System.out.println("Вы подключены к чату!");
+
+            // Поток чтения сообщений от сервера
+            Thread readThread = new Thread(() -> {
+                String msg;
+                try {
+                    while ((msg = in.readLine()) != null) {
+                        System.out.println("Сервер: " + msg);
+                    }
+                } catch (IOException e) {
+                    System.out.println("Соединение закрыто сервером.");
+                }
+            });
+            readThread.start();
+
+            // Поток отправки сообщений серверу
+            String msgToServer;
+            while ((msgToServer = console.readLine()) != null) {
+                out.write(msgToServer);
+                out.newLine();
+                out.flush();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}

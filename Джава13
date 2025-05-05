@@ -1,0 +1,76 @@
+// Объявление функционального интерфейса
+@FunctionalInterface
+public interface StringComparator {
+    String compare(String s1, String s2);
+}
+
+// Пример реализации интерфейса через лямбда-выражение
+StringComparator longestString = (a, b) -> a.length() >= b.length() ? a : b;
+
+// Демонстрация работы: поиск самой длинной строки в файле
+import java.io.*;
+
+public class LongestLineFinder {
+    public static void main(String[] args) {
+        String filePath = "input.txt"; // Укажите путь к своему файлу
+
+        StringComparator longestString = (a, b) -> a.length() >= b.length() ? a : b;
+        String maxLine = "";
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String currentLine;
+            while ((currentLine = reader.readLine()) != null) {
+                maxLine = longestString.compare(maxLine, currentLine);
+            }
+            System.out.println("Самая длинная строка: " + maxLine);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+// Объявление функционального интерфейса
+@FunctionalInterface
+public interface IntPredicate {
+    boolean test(int value);
+}
+
+// Лямбда-выражение: число делится на 13
+IntPredicate divisibleBy13 = number -> number % 13 == 0;
+
+// Пример кода для решения задачи с файлами
+import java.io.*;
+
+public class RemoveDivisibleBy13 {
+    public static void main(String[] args) {
+        String inputFile = "numbers.txt";      // исходный файл с числами
+        String outputFile = "filtered.txt";    // выходной файл
+
+        IntPredicate divisibleBy13 = number -> number % 13 == 0;
+
+        try (
+            BufferedReader reader = new BufferedReader(new FileReader(inputFile));
+            BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))
+        ) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                line = line.trim();
+                if (line.isEmpty()) continue; // пропуск пустых строк
+                int num;
+                try {
+                    num = Integer.parseInt(line);
+                } catch (NumberFormatException e) {
+                    // Если строка не число, пропускаем
+                    continue;
+                }
+                if (!divisibleBy13.test(num)) {
+                    writer.write(String.valueOf(num));
+                    writer.newLine();
+                }
+            }
+            System.out.println("Готово! Числа, делящиеся на 13, удалены.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}

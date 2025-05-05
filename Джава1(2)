@@ -1,0 +1,45 @@
+// Stock.java
+public class Stock {
+    // Поля данных
+    private String symbol;
+    private String name;
+    private double previousClosingPrice;
+    private double currentPrice;
+
+    // Конструктор
+    public Stock(String symbol, String name) {
+        this.symbol = symbol;
+        this.name = name;
+    }
+
+    // Метод для установки предыдущей цены закрытия
+    public void setPreviousClosingPrice(double previousClosingPrice) {
+        this.previousClosingPrice = previousClosingPrice;
+    }
+
+    // Метод для установки текущей цены
+    public void setCurrentPrice(double currentPrice) {
+        this.currentPrice = currentPrice;
+    }
+
+    // Метод для вычисления процента изменения цены
+    public double getChangePercent() {
+        return ((currentPrice - previousClosingPrice) / previousClosingPrice) * 100;
+    }
+}
+
+// Main.java
+public class Main {
+    public static void main(String[] args) {
+        // Создание объекта типа Stock
+        Stock stock = new Stock("SBER", "ПАО Сбербанк");
+
+        // Установка цены закрытия предыдущего дня
+        stock.setPreviousClosingPrice(281.50);
+        // Установка текущей цены
+        stock.setCurrentPrice(282.87);
+
+        // Вывод процента изменения стоимости акций
+        System.out.println("Процент изменения стоимости акций: " + stock.getChangePercent() + "%");
+    }
+}

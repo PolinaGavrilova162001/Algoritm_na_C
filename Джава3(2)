@@ -1,0 +1,160 @@
+public class MyString2 {
+    private char[] chars;
+
+    // Конструктор: принимает массив символов
+    public MyString2(char[] chars) {
+        this.chars = new char[chars.length];
+        System.arraycopy(chars, 0, this.chars, 0, chars.length);
+    }
+
+    // Возвращает подстроку, начиная с указанного индекса
+    public MyString2 substring(int begin) {
+        if (begin < 0 || begin > chars.length) {
+            throw new IndexOutOfBoundsException("Начальный индекс недопустим.");
+        }
+        char[] substringChars = new char[chars.length - begin];
+        System.arraycopy(chars, begin, substringChars, 0, chars.length - begin);
+        return new MyString2(substringChars);
+    }
+
+    // Возвращает подстроку от begin до end (не включая end)
+    public MyString2 substring(int begin, int end) {
+        if (begin < 0 || end > chars.length || begin > end) {
+            throw new IndexOutOfBoundsException("Индексы недопустимы.");
+        }
+        char[] substringChars = new char[end - begin];
+        System.arraycopy(chars, begin, substringChars, 0, end - begin);
+        return new MyString2(substringChars);
+    }
+
+    // Сравнивает текущий объект MyString2 с другим объектом MyString2
+    public int compareTo(MyString2 obj) {
+        int len1 = this.chars.length;
+        int len2 = obj.chars.length;
+        int minLength = Math.min(len1, len2);
+
+        for (int i = 0; i < minLength; i++) {
+            if (this.chars[i] != obj.chars[i]) {
+                return this.chars[i] - obj.chars[i];
+            }
+        }
+        return len1 - len2;
+    }
+
+    // Проверяет равенство текущего объекта с другим объектом
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        MyString2 myString2 = (MyString2) obj;
+        if (this.chars.length != myString2.chars.length) return false;
+        for (int i = 0; i < this.chars.length; i++) {
+            if (this.chars[i] != myString2.chars[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // Возвращает массив символов, содержащихся в объекте
+    public char[] toChars() {
+        char[] copy = new char[chars.length];
+        System.arraycopy(chars, 0, copy, 0, chars.length);
+        return copy;
+    }
+
+    // Создает объект MyString2 из булевого значения
+    public static MyString2 valueOf(boolean b) {
+        return b ? new MyString2(new char[]{'t', 'r', 'u', 'e'}) :
+                   new MyString2(new char[]{'f', 'a', 'l', 's', 'e'});
+    }
+
+    // Переопределяет метод toString для удобного вывода строки
+    @Override
+    public String toString() {
+        return new String(chars);
+    }
+}
+
+public class Circle {
+    private double radius;
+
+    // Статическая переменная для подсчета числа созданных объектов Circle
+    private static int numberOfObjects = 0;
+
+    // Конструктор по умолчанию
+    public Circle() {
+        this(1.0); // Вызов конструктора с одним аргументом
+    }
+
+    // Конструктор с определенным радиусом
+    public Circle(double radius) {
+        this.radius = radius > 0 ? radius : 0; // Радиус не может быть отрицательным
+        numberOfObjects++; // Увеличиваем счетчик объектов
+    }
+
+    // Возвращает радиус круга
+    public double getRadius() {
+        return radius;
+    }
+
+    // Устанавливает новый радиус
+    public void setRadius(double radius) {
+        if (radius > 0) {
+            this.radius = radius;
+        }
+    }
+
+    // Возвращает площадь круга
+    public double getArea() {
+        return Math.PI * radius * radius;
+    }
+
+    // Возвращает периметр круга
+    public double getPerimeter() {
+        return 2 * Math.PI * radius;
+    }
+
+    // Возвращает количество созданных объектов Circle
+    public static int getNumberOfObjects() {
+        return numberOfObjects;
+    }
+}
+
+public class TestCircleWithPrivateDataFields {
+    public static void main(String[] args) {
+        // Тестируем класс Circle
+        Circle circle1 = new Circle(5.0); // Создаем круг с радиусом 5
+        Circle circle2 = new Circle(7.0); // Создаем круг с радиусом 7
+
+        System.out.println("Круг 1:");
+        System.out.println("Радиус: " + circle1.getRadius());
+        System.out.println("Площадь: " + circle1.getArea());
+        System.out.println("Периметр: " + circle1.getPerimeter());
+
+        System.out.println("\nКруг 2:");
+        System.out.println("Радиус: " + circle2.getRadius());
+        System.out.println("Площадь: " + circle2.getArea());
+        System.out.println("Периметр: " + circle2.getPerimeter());
+
+        System.out.println("\nОбщее число созданных объектов Circle: " + Circle.getNumberOfObjects());
+
+        // Тестируем класс MyString2
+        char[] sample = {'H', 'e', 'l', 'l', 'o'};
+        MyString2 myString = new MyString2(sample);
+
+        System.out.println("\nТестирование MyString2:");
+        System.out.println("Исходная строка: " + myString);
+
+        System.out.println("Подстрока (с 1): " + myString.substring(1).toString());
+        System.out.println("Подстрока (с 1 по 4): " + myString.substring(1, 4).toString());
+
+        MyString2 comparison = new MyString2(new char[]{'H', 'i'});
+        System.out.println("Сравнение с 'Hi': " + myString.compareTo(comparison));
+
+        System.out.println("Проверка на равенство с 'Hello': " + myString.equals(new MyString2(new char[]{'H', 'e', 'l', 'l', 'o'})));
+
+        System.out.println("Строка из 'true': " + MyString2.valueOf(true).toString());
+        System.out.println("Строка из 'false': " + MyString2.valueOf(false).toString());
+    }
+}

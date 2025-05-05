@@ -1,0 +1,193 @@
+// Абстрактный класс Shape
+abstract class Shape {
+    public abstract double getVolume();
+    public abstract String toString();
+}
+
+// Абстрактный класс SolidOfRevolution — производный от Shape
+abstract class SolidOfRevolution extends Shape {
+    protected double radius;
+
+    public SolidOfRevolution(double radius) {
+        this.radius = radius;
+    }
+
+    public double getRadius() {
+        return radius;
+    }
+}
+
+// Класс Sphere — пример объекта SolidOfRevolution
+class Sphere extends SolidOfRevolution {
+    public Sphere(double radius) {
+        super(radius);
+    }
+
+    @Override
+    public double getVolume() {
+        return (4.0 / 3.0) * Math.PI * Math.pow(radius, 3);
+    }
+
+    @Override
+    public String toString() {
+        return "Sphere(radius=" + radius + ", volume=" + getVolume() + ")";
+    }
+}
+
+// Класс Cylinder — еще один пример SolidOfRevolution
+class Cylinder extends SolidOfRevolution {
+    private double height;
+
+    public Cylinder(double radius, double height) {
+        super(radius);
+        this.height = height;
+    }
+
+    @Override
+    public double getVolume() {
+        return Math.PI * Math.pow(radius, 2) * height;
+    }
+
+    @Override
+    public String toString() {
+        return "Cylinder(radius=" + radius + ", height=" + height + ", volume=" + getVolume() + ")";
+    }
+}
+
+// Класс Box — контейнер для фигур
+import java.util.ArrayList;
+
+class Box extends Shape {
+    private double capacity; // Общий объем контейнера
+    private double usedVolume = 0; // Объем уже добавленных фигур
+    private ArrayList<Shape> shapes; // Хранение добавленных фигур
+
+    public Box(double capacity) {
+        this.capacity = capacity;
+        shapes = new ArrayList<>();
+    }
+
+    public boolean add(Shape shape) {
+        double shapeVolume = shape.getVolume();
+        if (usedVolume + shapeVolume <= capacity) {
+            shapes.add(shape);
+            usedVolume += shapeVolume;
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public double getVolume() {
+        return capacity;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Box(capacity=").append(capacity).append(", usedVolume=").append(usedVolume).append(")\n");
+        sb.append("Contents:\n");
+        for (Shape shape : shapes) {
+            sb.append("  ").append(shape.toString()).append("\n");
+        }
+        return sb.toString();
+    }
+}
+
+// Main для тестирования
+public class TestGeometricObject {
+    public static void main(String[] args) {
+        // Создаем контейнер Box емкостью 1000
+        Box box = new Box(1000);
+
+        // Создаем фигуры
+        Sphere sphere1 = new Sphere(5);
+        Sphere sphere2 = new Sphere(10);
+        Cylinder cylinder1 = new Cylinder(3, 10);
+        Cylinder cylinder2 = new Cylinder(7, 15);
+
+        // Добавляем фигуры в контейнер
+        System.out.println("Adding Sphere(5): " + box.add(sphere1));
+        System.out.println("Adding Sphere(10): " + box.add(sphere2));
+        System.out.println("Adding Cylinder(3, 10): " + box.add(cylinder1));
+        System.out.println("Adding Cylinder(7, 15): " + box.add(cylinder2));
+        System.out.println();
+
+        // Печатаем содержимое Box
+        System.out.println(box);
+    }
+}
+
+import java.util.ArrayList;
+import java.util.Collections;
+
+// Обновленный класс MyStack
+public class MyStack<T extends Comparable<T>> { 
+    private ArrayList<T> list = new ArrayList<>(); 
+
+    public boolean isEmpty() { 
+        return list.isEmpty(); 
+    } 
+
+    public int getSize() { 
+        return list.size(); 
+    } 
+
+    public T peek() { 
+        return list.get(getSize() - 1); 
+    } 
+
+    public T pop() { 
+        T o = list.get(getSize() - 1); 
+        list.remove(getSize() - 1); 
+        return o; 
+    } 
+
+    public void push(T o) { 
+        list.add(o); 
+    } 
+
+    // Метод сортировки Stack с использованием compareTo()
+    public void sort() { 
+        Collections.sort(list); 
+    } 
+
+    @Override 
+    public String toString() { 
+        return "стек: " + list.toString(); 
+    } 
+}
+
+// Класс для тестирования MyStack
+public class TestMyStack {
+    public static void main(String[] args) {
+        // Создаем стек для чисел-целых чисел
+        MyStack<Integer> numberStack = new MyStack<>();
+        
+        System.out.println("Добавляем числа в стек:");
+        numberStack.push(15);
+        numberStack.push(8);
+        numberStack.push(22);
+        numberStack.push(5);
+        System.out.println(numberStack);
+
+        System.out.println("Сортируем стек:");
+        numberStack.sort();
+        System.out.println(numberStack);
+
+        // Создаем стек для строк
+        MyStack<String> stringStack = new MyStack<>();
+        
+        System.out.println("\nДобавляем строки в стек:");
+        stringStack.push("apple");
+        stringStack.push("orange");
+        stringStack.push("banana");
+        stringStack.push("grape");
+        System.out.println(stringStack);
+
+        System.out.println("Сортируем стек:");
+        stringStack.sort();
+        System.out.println(stringStack);
+    }
+}
+

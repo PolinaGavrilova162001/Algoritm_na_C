@@ -1,0 +1,156 @@
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
+public class Предложение implements Iterable<String> {
+    private final String[] слова;
+
+    public Предложение(String текст) {
+        // Разделяем предложение на слова по пробелам (учитывая возможные знаки препинания)
+        this.слова = текст.trim().split("\\s+");
+    }
+
+    @Override
+    public Iterator<String> iterator() {
+        return new ИтераторСлов();
+    }
+
+    private class ИтераторСлов implements Iterator<String> {
+        private int текущийИндекс = 0;
+
+        @Override
+        public boolean hasNext() {
+            return текущийИндекс < слова.length;
+        }
+
+        @Override
+        public String next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+            return слова[текущийИндекс++];
+        }
+    }
+
+    // Пример использования:
+    public static void main(String[] args) {
+        Предложение предложение = new Предложение("Привет, как дела?");
+        for (String слово : предложение) {
+            System.out.println(слово);
+        }
+    }
+}
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
+public class КольцевойХранилище<T extends Comparable<T>> implements Iterable<T> {
+    private final ArrayList<T> данные = new ArrayList<>();
+
+    public void добавить(T элемент) {
+        данные.add(элемент);
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+        return new ДвунаправленныйКольцевойИтератор();
+    }
+
+    private class ДвунаправленныйКольцевойИтератор implements Iterator<T> {
+        private int текущийИндекс = 0;
+        private final T начальныйЭлемент;
+
+        public ДвунаправленныйКольцевойИтератор() {
+            if (данные.isEmpty()) {
+                начальныйЭлемент = null;
+            } else {
+                начальныйЭлемент = данные.get(0);
+                // Поиск первого элемента больше или равного начальному
+                while (текущийИндекс < данные.size() && 
+                       данные.get(текущийИндекс).compareTo(начальныйЭлемент) < 0) {
+                    текущийИндекс++;
+                }
+            }
+        }
+
+        @Override
+        public boolean hasNext() {
+            if (данные.isEmpty()) return false;
+            return текущийИндекс < данные.size();
+        }
+
+        @Override
+        public T next() {
+            if (данные.isEmpty()) {
+                throw new NoSuchElementException();
+            }
+            T результат = данные.get(текущийИндекс);
+            текущийИндекс++;
+            // Если следующий элемент меньше начального, пропускаем его
+            while (текущийИндекс < данные.size() &&
+                   данные.get(текущийИндекс).compareTo(начальныйЭлемент) < 0) {
+                текущийИндекс++;
+            }
+            if (текущийИндекс >= данные.size()) {
+                текущийИндекс = 0; // Переход к началу
+            }
+            return результат;
+        }
+
+        public void назад() {
+            if (текущийИндекс <= 0) {
+                текущийИндекс = данные.size() - 1; // Переход к концу
+            } else {
+                текущийИндекс--;
+            }
+            // Проверка на значение меньше начального элемента
+            while (текущийИндекс > 0 &&
+                   данные.get(текущийИндекс).compareTo(начальныйЭлемент) < 0) {
+                текущийИндекс--;
+            }
+        }
+    }
+
+    // Пример использования
+    public static void main(String[] args) {
+        КольцевойХранилище<String> хранилище = new КольцевойХранилище<>();
+        хранилище.добавить("яблоко");
+        хранилище.добавить("груша");
+        хранилище.добавить("банан");
+        хранилище.добавить("апельсин");
+
+        System.out.println("Итерация по строкам:");
+        for (String элемент : хранилище) {
+            System.out.println(элемент);
+        }
+
+        // Пример с пользовательским типом данных
+        class Пользователь implements Comparable<Пользователь> {
+            String имя;
+
+            Пользователь(String имя) {
+                this.имя = имя;
+            }
+
+            @Override
+            public int compareTo(Пользователь другой) {
+                return this.имя.compareTo(другой.имя);
+            }
+
+            @Override
+            public String toString() {
+                return имя;
+            }
+        }
+
+        КольцевойХранилище<Пользователь> пользовательскоеХранилище = new КольцевойХранилище<>();
+        пользовательскоеХранилище.добавить(new Пользователь("Алексей"));
+        пользовательскоеХранилище.добавить(new Пользователь("Виктор"));
+        пользовательскоеХранилище.добавить(new Пользователь("Анна"));
+
+        System.out.println("Итерация по пользователям:");
+        for (Пользователь пользователь : пользовательскоеХранилище) {
+            System.out.println(пользователь);
+        }
+    }
+}

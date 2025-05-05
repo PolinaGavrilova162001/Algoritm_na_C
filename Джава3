@@ -1,0 +1,132 @@
+public class MyCharacter {
+    private char value;
+
+    // Конструктор
+    public MyCharacter(char value) {
+        this.value = value;
+    }
+
+    // Возвращает значение символа
+    public char charValue() {
+        return value;
+    }
+
+    // Сравнивает данный объект MyCharacter с другим
+    public int compareTo(MyCharacter anotherCharacter) {
+        return Character.compare(this.value, anotherCharacter.value);
+    }
+
+    // Проверяет равенство текущего объекта с другим объектом
+    @Override
+    public boolean equals(Object anotherCharacter) {
+        if (this == anotherCharacter) return true;
+        if (anotherCharacter == null || getClass() != anotherCharacter.getClass()) return false;
+        MyCharacter that = (MyCharacter) anotherCharacter;
+        return value == that.value;
+    }
+
+    // Проверяет, является ли символ цифрой
+    public boolean isDigit() {
+        return Character.isDigit(value);
+    }
+
+    // Проверяет, является ли символ цифрой (статический метод)
+    public static boolean isDigit(MyCharacter ch) {
+        if (ch == null) return false;
+        return Character.isDigit(ch.value);
+    }
+
+    // Проверяет, является ли символ буквой (статический метод)
+    public static boolean isLetter(MyCharacter ch) {
+        if (ch == null) return false;
+        return Character.isLetter(ch.value);
+    }
+
+    // Проверяет, является ли символ буквой или цифрой (статический метод)
+    public static boolean isLetterOrDigit(MyCharacter ch) {
+        if (ch == null) return false;
+        return Character.isLetterOrDigit(ch.value);
+    }
+
+    // Переопределение метода hashCode
+    @Override
+    public int hashCode() {
+        return Character.hashCode(value);
+    }
+}
+
+public class Circle {
+    private double radius;
+
+    // Статическая переменная для подсчета числа созданных объектов Circle
+    private static int numberOfObjects = 0;
+
+    // Конструктор по умолчанию
+    public Circle() {
+        this(1.0); // Вызов конструктора с одним аргументом
+    }
+
+    // Конструктор с определенным радиусом
+    public Circle(double radius) {
+        this.radius = radius > 0 ? radius : 0; // Радиус не может быть отрицательным
+        numberOfObjects++; // Увеличиваем счетчик объектов
+    }
+
+    // Возвращает радиус
+    public double getRadius() {
+        return radius;
+    }
+
+    // Устанавливает новый радиус, если он положительный
+    public void setRadius(double radius) {
+        if (radius > 0) {
+            this.radius = radius;
+        }
+    }
+
+    // Возвращает площадь круга
+    public double getArea() {
+        return Math.PI * radius * radius;
+    }
+
+    // Возвращает периметр круга
+    public double getPerimeter() {
+        return 2 * Math.PI * radius;
+    }
+
+    // Возвращает общее количество созданных объектов Circle
+    public static int getNumberOfObjects() {
+        return numberOfObjects;
+    }
+}
+
+public class TestCircleWithPrivateDataFields {
+    public static void main(String[] args) {
+        // Создаем два объекта Circle
+        Circle circle1 = new Circle(5.0);
+        Circle circle2 = new Circle(3.5);
+
+        // Вывод информации о круге 1
+        System.out.println("Круг 1:");
+        System.out.println("Радиус: " + circle1.getRadius());
+        System.out.println("Площадь: " + circle1.getArea());
+        System.out.println("Периметр: " + circle1.getPerimeter());
+
+        // Вывод информации о круге 2
+        System.out.println("\nКруг 2:");
+        System.out.println("Радиус: " + circle2.getRadius());
+        System.out.println("Площадь: " + circle2.getArea());
+        System.out.println("Периметр: " + circle2.getPerimeter());
+
+        // Изменяем радиус круга 2
+        circle2.setRadius(7.0);
+        System.out.println("\nИзмененный круг 2:");
+        System.out.println("Новый радиус: " + circle2.getRadius());
+        System.out.println("Новая площадь: " + circle2.getArea());
+
+        System.out.println("Новый периметр: " + circle2.getPerimeter());
+
+        // Вывод общего количества объектов Circle
+        System.out.println("\nОбщее число созданных объектов Circle: " + Circle.getNumberOfObjects());
+    }
+}
